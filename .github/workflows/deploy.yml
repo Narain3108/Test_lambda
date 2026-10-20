@@ -16,21 +16,13 @@ jobs:
         run: |
           zip lambda.zip lambda_function.py
 
-  create-octopus-release:
+  list-projects:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create Octopus Release
+      - name: List Octopus Projects
         run: |
-          VERSION="1.0.${{ github.run_number }}"
-
-          echo "Creating Release $VERSION"
-
-          curl -X POST \
-            "${{ secrets.OCTOPUS_SERVER }}/api/Spaces-1/projects/hello-lambda/releases" \
+          curl -s \
             -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-                  \"Version\": \"$VERSION\"
-                }"
+            "${{ secrets.OCTOPUS_SERVER }}/api/Spaces-1/projects/all"
