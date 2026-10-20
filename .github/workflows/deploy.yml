@@ -1,4 +1,4 @@
-name: Build Lambda
+name: Build and Push Docker Image
 
 on:
   push:
@@ -13,20 +13,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create Package
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker Image
         run: |
-          VERSION="1.0.${{ github.run_number }}"
-          PACKAGE_NAME="hello-lambda.${VERSION}.zip"
-      
-          zip "${PACKAGE_NAME}" lambda_function.py
-      
-          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
-      
-      - name: Upload package to Octopus
+          docker build -t hello-lambda .
+
+      - name: Tag Image
         run: |
-          echo "Uploading ${PACKAGE_NAME}"
-      
-          curl -X POST \
-            "${{ secrets.OCTOPUS_SERVER }}/api/Spaces-1/packages/raw?replace=true" \
-            -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" \
-            -F "data=@${PACKAGE_NAME}"
+          docker tag hello-lambda:latest \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda:${{ github.run_number }}
+
+      - name: Push Image
+        run: |
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda:${{ github.run_number }}
