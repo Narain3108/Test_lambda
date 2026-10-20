@@ -15,13 +15,18 @@ jobs:
 
       - name: Create Package
         run: |
-          zip lambda.zip lambda_function.py
-
+          VERSION="1.0.${{ github.run_number }}"
+          PACKAGE_NAME="hello-lambda.${VERSION}.zip"
+      
+          zip "${PACKAGE_NAME}" lambda_function.py
+      
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+      
       - name: Upload package to Octopus
         run: |
-          VERSION="1.0.${{ github.run_number }}"
-
+          echo "Uploading ${PACKAGE_NAME}"
+      
           curl -X POST \
-            "${{ secrets.OCTOPUS_SERVER }}/api/${{ secrets.OCTOPUS_SPACE_ID }}/packages/raw?replace=true" \
+            "${{ secrets.OCTOPUS_SERVER }}/api/Spaces-1/packages/raw?replace=true" \
             -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" \
-            -F "data=@lambda.zip"
+            -F "data=@${PACKAGE_NAME}"
