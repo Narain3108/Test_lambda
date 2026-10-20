@@ -10,18 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Create Package
         run: |
           zip lambda.zip lambda_function.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-package
+          path: lambda.zip
 
   list-projects:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: List Octopus Projects
+      - name: Verify Octopus Connectivity
         run: |
           curl -s \
             -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" \
