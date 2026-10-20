@@ -1,12 +1,29 @@
-octopus-test:
-  needs: build
-  runs-on: ubuntu-latest
+name: Build Lambda
 
-  steps:
-    - name: Test Octopus Connection
-      run: |
-        echo "Testing connection to Octopus..."
+on:
+  push:
+    branches:
+      - main
 
-        curl -s \
-          -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" \
-          "${{ secrets.OCTOPUS_SERVER }}/api"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Package
+        run: zip lambda.zip lambda_function.py
+
+  octopus-test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test Octopus Connection
+        run: |
+          echo "Testing connection to Octopus..."
+
+          curl -s \
+            -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" \
+            "${{ secrets.OCTOPUS_SERVER }}/api"
