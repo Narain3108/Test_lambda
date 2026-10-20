@@ -1,31 +1,14 @@
-name: Build Lambda
+create-octopus-release:
+  needs: build
+  runs-on: ubuntu-latest
 
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Run Tests
-        run: python test.py
-
-      - name: Create Package
-        run: zip lambda.zip lambda_function.py
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: lambda-package
-          path: lambda.zip
+  steps:
+    - name: Create Octopus Release
+      run: |
+        curl -X POST "${{ secrets.OCTOPUS_SERVER }}/api/releases" \
+          -H "X-Octopus-ApiKey: ${{ secrets.OCTOPUS_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "ProjectName": "Hello-Lambda",
+            "Version": "1.0.${{ github.run_number }}"
+          }'
