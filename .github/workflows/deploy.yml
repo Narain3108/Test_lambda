@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: Build and Push Docker Image
+=======
+name: Build and Push to ECR
+>>>>>>> 83cfa05 (feat:cloudformation setup)
 
 on:
   push:
@@ -10,9 +14,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+<<<<<<< HEAD
       - name: Checkout
         uses: actions/checkout@v4
 
+=======
+
+      - uses: actions/checkout@v4
+
+>>>>>>> 83cfa05 (feat:cloudformation setup)
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -20,10 +30,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+<<<<<<< HEAD
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker Image
+=======
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Image
+>>>>>>> 83cfa05 (feat:cloudformation setup)
         run: |
           docker build -t hello-lambda .
 
@@ -35,4 +52,8 @@ jobs:
       - name: Push Image
         run: |
           docker push \
+<<<<<<< HEAD
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda:${{ github.run_number }}
+=======
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda:${{ github.run_number }}
+>>>>>>> 83cfa05 (feat:cloudformation setup)

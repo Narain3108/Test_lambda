@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  ImageUri:
+    Type: String
+
+Resources:
+  HelloLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: hello-lambda-container
+      PackageType: Image
+      Code:
+        ImageUri: !Ref ImageUri
+      Role: arn:aws:iam::231229084429:role/service-role/hello-lambda-container-role-kvisr6sc
+      MemorySize: 128
+      Timeout: 30
+
+Outputs:
+  LambdaName:
+    Value: !Ref HelloLambda
