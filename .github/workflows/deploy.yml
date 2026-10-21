@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
@@ -29,10 +28,19 @@ jobs:
 
       - name: Tag Image
         run: |
-          docker tag hello-lambda:latest \
-          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda:${{ github.run_number }}
+          ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda
+
+          docker tag hello-lambda:latest $ECR_URI:${{ github.run_number }}
+          docker tag hello-lambda:latest $ECR_URI:latest
 
       - name: Push Image
         run: |
-          docker push \
-          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda:${{ github.run_number }}
+          ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-lambda
+
+          docker push $ECR_URI:${{ github.run_number }}
+          docker push $ECR_URI:latest
+
+      - name: Display Published Image
+        run: |
+          echo "Version Tag: ${{ github.run_number }}"
+          echo "Latest Tag: latest"
