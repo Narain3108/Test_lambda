@@ -1,16 +1,65 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  ImageUri:
+    Type: String
+
 Resources:
 
-  StepFunctionRole:
-    Type: AWS::IAM::Role
+  HelloLambda:
+    Type: AWS::Lambda::Function
     Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - states.amazonaws.com
-            Action:
-              - sts:AssumeRole
+      FunctionName: hello-lambda-container
+      PackageType: Image
+
+      Code:
+        ImageUri: !Ref ImageUri
+
+      Role: arn:aws:iam::231229084429:role/service-role/hello-lambda-container-role-kvisr6sc
+
+      MemorySize: 128
+      Timeout: 30
+
+      Environment:
+        Variables:
+          STEP_FUNCTION_ARN: !Ref DemoWorkflow
+
+  DemoWorkflow:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: DemoWorkflow
+
+      RoleArn: arn:aws:iam::231229084429:role/StepFunctionExecutionRole
+
+      DefinitionString: |
+        {
+          "Comment": "Demo Workflow",
+          "StartAt": "CheckValue",
+          "States": {
+            "CheckValue": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.value",
+                  "NumericEquals": 1,
+                  "Next": "Success"
+                }
+              ],
+              "Default": "Failure"
+            },
+            "Success": {
+              "Type": "Succeed"
+            },
+            "Failure": {
+              "Type": "Fail",
+              "Cause": "Value is not 1"
+            }
+          }
+        }
+
+Outputs:
+  LambdaName:
+    Value: !Ref HelloLambda
+
+  StepFunctionArn:
+    Value: !Ref DemoWorkflow
