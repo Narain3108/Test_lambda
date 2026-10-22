@@ -6,28 +6,25 @@ sfn = boto3.client("stepfunctions")
 
 def lambda_handler(event, context):
 
-    # Called by Step Function
+    # Called from Step Function
     if event.get("source") == "stepfunction":
         return {
             "message": "Hello Narain"
         }
 
-    # Called directly
-    value = event.get("value")
+    # Direct invocation
+    if event.get("value") == 1:
 
-    if value == 1:
         response = sfn.start_execution(
             stateMachineArn=os.environ["STEP_FUNCTION_ARN"],
-            input=json.dumps({
-                "source": "stepfunction"
-            })
+            input=json.dumps(event)
         )
 
         return {
-            "message": "Step Function started",
+            "message": "Step Function Started",
             "executionArn": response["executionArn"]
         }
 
     return {
-        "message": "Invalid input"
+        "message": "Invalid Input"
     }
