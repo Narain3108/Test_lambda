@@ -1,0 +1,24 @@
+{
+  "Comment": "Demo Workflow",
+  "StartAt": "CheckValue",
+  "States": {
+    "CheckValue": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.value",
+          "NumericEquals": 1,
+          "Next": "Success"
+        }
+      ],
+      "Default": "Failure"
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "Failure": {
+      "Type": "Fail",
+      "Cause": "Value is not 1"
+    }
+  }
+}
