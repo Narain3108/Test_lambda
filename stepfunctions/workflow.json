@@ -1,24 +1,19 @@
 {
-  "Comment": "Demo Workflow",
-  "StartAt": "CheckValue",
+  "Comment": "Invoke Worker Lambda Demo",
+  "StartAt": "InvokeHelloLambda",
   "States": {
-    "CheckValue": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.value",
-          "NumericEquals": 1,
-          "Next": "Success"
-        }
-      ],
-      "Default": "Failure"
+    "InvokeHelloLambda": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "hello-worker-lambda",
+        "Payload.$": "$"
+      },
+      "OutputPath": "$.Payload",
+      "Next": "Success"
     },
     "Success": {
       "Type": "Succeed"
-    },
-    "Failure": {
-      "Type": "Fail",
-      "Cause": "Value is not 1"
     }
   }
 }
