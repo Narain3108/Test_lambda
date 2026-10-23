@@ -9,7 +9,6 @@ def lambda_handler(event, context):
     value = event.get("value")
 
     if value == 1:
-
         response = sfn.start_execution(
             stateMachineArn=os.environ["STEP_FUNCTION_1_ARN"],
             input=json.dumps(event)
@@ -21,7 +20,6 @@ def lambda_handler(event, context):
         }
 
     elif value == 2:
-
         response = sfn.start_execution(
             stateMachineArn=os.environ["STEP_FUNCTION_2_ARN"],
             input=json.dumps(event)
