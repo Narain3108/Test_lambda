@@ -1,31 +1,37 @@
 import json
-import boto3
 import os
+import boto3
 
 sfn = boto3.client("stepfunctions")
 
 def lambda_handler(event, context):
 
-    print(event)
+    value = event.get("value")
 
-    # Invoked by Step Function
-    if event.get("source") == "stepfunction":
-        return {
-            "message": "Hello Narain"
-        }
+    if value == 1:
 
-    # Initial invocation
-    if event.get("value") == 1:
         response = sfn.start_execution(
-            stateMachineArn=os.environ["STEP_FUNCTION_ARN"],
+            stateMachineArn=os.environ["STEP_FUNCTION_1_ARN"],
             input=json.dumps(event)
         )
 
         return {
-            "message": "Step Function Started",
+            "message": "Workflow 1 started",
+            "executionArn": response["executionArn"]
+        }
+
+    elif value == 2:
+
+        response = sfn.start_execution(
+            stateMachineArn=os.environ["STEP_FUNCTION_2_ARN"],
+            input=json.dumps(event)
+        )
+
+        return {
+            "message": "Workflow 2 started",
             "executionArn": response["executionArn"]
         }
 
     return {
-        "message": "Invalid Input"
+        "message": "Provide value 1 or 2"
     }

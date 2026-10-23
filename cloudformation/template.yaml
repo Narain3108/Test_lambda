@@ -18,64 +18,48 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          STEP_FUNCTION_ARN: !Ref DemoWorkflow
+          STEP_FUNCTION_1_ARN: !Ref DemoWorkflow1
+          STEP_FUNCTION_2_ARN: !Ref DemoWorkflow2
 
-  DemoWorkflow:
+  DemoWorkflow1:
     Type: AWS::StepFunctions::StateMachine
     Properties:
-      StateMachineName: DemoWorkflow
+      StateMachineName: DemoWorkflow1
       RoleArn: arn:aws:iam::231229084429:role/StepFunctionExecutionRole
-      DefinitionString:
-        Fn::Sub: |
-          {
-            "Comment": "Lambda invokes Step Function which invokes same Lambda",
-            "StartAt": "CheckValue",
-            "States": {
-              "CheckValue": {
-                "Type": "Choice",
-                "Choices": [
-                  {
-                    "Variable": "$.value",
-                    "NumericEquals": 1,
-                    "Next": "InvokeLambda"
-                  }
-                ],
-                "Default": "Failure"
-              },
-              "InvokeLambda": {
-                "Type": "Task",
-                "Resource": "arn:aws:states:::lambda:invoke",
-                "Parameters": {
-                  "FunctionName": "${HelloLambda}",
-                  "Payload": {
-                    "source": "stepfunction"
-                  }
-                },
-                "OutputPath": "$.Payload",
-                "Next": "Success"
-              },
-              "Success": {
-                "Type": "Succeed"
-              },
-              "Failure": {
-                "Type": "Fail",
-                "Cause": "Value is not 1"
-              }
+      DefinitionString: |
+        {
+          "Comment": "Workflow 1",
+          "StartAt": "Success",
+          "States": {
+            "Success": {
+              "Type": "Succeed"
             }
           }
+        }
 
-  StepFunctionInvokePermission:
-    Type: AWS::Lambda::Permission
+  DemoWorkflow2:
+    Type: AWS::StepFunctions::StateMachine
     Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref HelloLambda
-      Principal: states.amazonaws.com
-      SourceArn: !Ref DemoWorkflow
+      StateMachineName: DemoWorkflow2
+      RoleArn: arn:aws:iam::231229084429:role/StepFunctionExecutionRole
+      DefinitionString: |
+        {
+          "Comment": "Workflow 2",
+          "StartAt": "Success",
+          "States": {
+            "Success": {
+              "Type": "Succeed"
+            }
+          }
+        }
 
 Outputs:
 
   LambdaName:
     Value: !Ref HelloLambda
 
-  StepFunctionArn:
-    Value: !Ref DemoWorkflow
+  StepFunction1Arn:
+    Value: !Ref DemoWorkflow1
+
+  StepFunction2Arn:
+    Value: !Ref DemoWorkflow2
